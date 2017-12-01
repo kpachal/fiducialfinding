@@ -34,7 +34,7 @@ int main(int, char**)
     // If relevant: load template image to define fiducial
     if (!fiducialTemplate.empty()) myFinder.SetFiducialTemplate(templateImage);
 
-    bool gotAruco = myFinder.FindFiducial_ARUCO(searchImage);
+    bool gotAruco = myFinder.FindFiducial_ARUCO(searchImage,true);
   
     bool gotContours = myFinder.FindFiducial_Contours(searchImage);
   

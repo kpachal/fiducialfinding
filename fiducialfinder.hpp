@@ -22,7 +22,7 @@ public:
 	FiducialFinder();
 	~FiducialFinder();
 
-    bool FindFiducial_ARUCO(cv::Mat image);
+    bool FindFiducial_ARUCO(cv::Mat image, bool fiducialIsFilled = false);
 
     // bool FindFiducial_SURF(cv::Mat image);
 
@@ -37,7 +37,7 @@ protected:
     cv::Mat Blur();
     cv::Mat Sharpen();
 
-    cv::Ptr<cv::aruco::Dictionary> GetArucoF(bool filled);
+    cv::Ptr<cv::aruco::Dictionary> GetArucoF(bool filled = false);
 
     void Show(cv::Mat img);
   

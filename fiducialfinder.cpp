@@ -22,10 +22,10 @@ FiducialFinder::~FiducialFinder() {
 
 }
 
-bool FiducialFinder::FindFiducial_ARUCO(cv::Mat image) {
+bool FiducialFinder::FindFiducial_ARUCO(cv::Mat image, bool fiducialIsFilled) {
 
   // Set up parameters for marker drawing
-  cv::Ptr<cv::aruco::Dictionary> dictionary = GetArucoF(false);
+  cv::Ptr<cv::aruco::Dictionary> dictionary = GetArucoF(fiducialIsFilled);
 
   cv::Mat markerImg;
   cv::aruco::drawMarker(dictionary, 0, 200, markerImg, 1);
@@ -51,30 +51,36 @@ bool FiducialFinder::FindFiducial_Contours(cv::Mat image) {
 
 cv::Ptr<cv::aruco::Dictionary> FiducialFinder::GetArucoF(bool filled) {
 
-  cv::Ptr<cv::aruco::Dictionary> dictionary=cv::aruco::Dictionary::create(0,6);
-  
-  cv::Mat markerBits = (cv::Mat_<int>(6,6,CV_8UC1) << 0, 0, 0, 0, 0, 0,
-                                                      0, 1, 1, 1, 1, 0,
-                                                      0, 1, 0, 0, 0, 0,
-                                                      0, 1, 1, 1, 0, 0,
-                                                      0, 1, 0, 0, 0, 0,
-                                                      0, 1, 0, 0, 0, 0);
-  
-  if (filled) markerBits = (markerBits & 0);
-  
-  std::cout << "M = " << std::endl << " "  << markerBits << std::endl << std::endl;
+  cv::aruco::Dictionary dictionary;
+  dictionary.markerSize = 6;
+  dictionary.maxCorrectionBits = 12;
 
+  bool bkg = 1;
+  bool F = 0;
+  if (filled) {
+    bkg = 0; F = 1;
+  }
+
+  cv::Mat markerBits(6,6,CV_8UC1,cv::Scalar(bkg));
+  markerBits.at<bool>(1,1) = F;
+  markerBits.at<bool>(1,2) = F;
+  markerBits.at<bool>(1,3) = F;
+  markerBits.at<bool>(1,4) = F;
+  markerBits.at<bool>(2,1) = F;
+  markerBits.at<bool>(3,1) = F;
+  markerBits.at<bool>(3,2) = F;
+  markerBits.at<bool>(3,3) = F;
+  markerBits.at<bool>(4,1) = F;
+  markerBits.at<bool>(5,1) = F;
+  
   cv::Mat markerCompressed = cv::aruco::Dictionary::getByteListFromBits(markerBits);
-
-  dictionary->bytesList.push_back(markerCompressed);
+  dictionary.bytesList.push_back(markerCompressed);
+  cv::Ptr<cv::aruco::Dictionary> ptrDict = cv::makePtr<cv::aruco::Dictionary>(dictionary);
   
   cv::Mat markerImg;
-  cv::aruco::drawMarker(dictionary, 0, 8, markerImg, 1);
-  
-  std::cout << "new M = " << std::endl << " "  << markerImg << std::endl << std::endl;
-
+  cv::aruco::drawMarker(ptrDict, 0, 8, markerImg, 1);
  
-  return dictionary;
+  return ptrDict;
 
 }
 
