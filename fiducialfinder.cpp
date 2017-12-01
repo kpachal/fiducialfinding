@@ -23,6 +23,9 @@ FiducialFinder::~FiducialFinder() {
 }
 
 bool FiducialFinder::FindFiducial_ARUCO(cv::Mat image, bool fiducialIsFilled) {
+  
+  // This unmodified version will hold the detected markers
+  cv::Mat outputImage = image;
 
   // Set up parameters for marker drawing
   cv::Ptr<cv::aruco::Dictionary> dictionary = GetArucoF(fiducialIsFilled);
@@ -31,12 +34,29 @@ bool FiducialFinder::FindFiducial_ARUCO(cv::Mat image, bool fiducialIsFilled) {
   cv::aruco::drawMarker(dictionary, 0, 200, markerImg, 1);
 
   // Let's look at the marker!
-  Show(markerImg);
+  //Show(markerImg);
   
   // Now check that we have something to search it in
   Show(image);
+  
+  // Find fiducial in image
+  std::vector< int > markerIds;
+  std::vector< std::vector<cv::Point2f> > markerCorners, rejectedCandidates;
+  cv::Ptr<cv::aruco::DetectorParameters> parameters = cv::aruco::DetectorParameters::create();
+  parameters->perspectiveRemovePixelPerCell = 1;
+  parameters->perspectiveRemoveIgnoredMarginPerCell = 0.3;
+  parameters->errorCorrectionRate = 0.3;
+//  parameters->adaptiveThreshWinSizeMin = 10;
+//  parameters->adaptiveThreshWinSizeMax = 100;
+//  parameters->adaptiveThreshWinSizeStep = 10;
+  
+  cv::aruco::detectMarkers(image, dictionary, markerCorners, markerIds, parameters, rejectedCandidates);
 
-  return false;
+  cv::aruco::drawDetectedMarkers(outputImage, markerCorners, markerIds);
+  Show(outputImage);
+  
+  bool foundFiducial = markerIds.size() > 0 ? true : false;
+  return foundFiducial;
 
 }
 
@@ -76,9 +96,6 @@ cv::Ptr<cv::aruco::Dictionary> FiducialFinder::GetArucoF(bool filled) {
   cv::Mat markerCompressed = cv::aruco::Dictionary::getByteListFromBits(markerBits);
   dictionary.bytesList.push_back(markerCompressed);
   cv::Ptr<cv::aruco::Dictionary> ptrDict = cv::makePtr<cv::aruco::Dictionary>(dictionary);
-  
-  cv::Mat markerImg;
-  cv::aruco::drawMarker(ptrDict, 0, 8, markerImg, 1);
  
   return ptrDict;
 
