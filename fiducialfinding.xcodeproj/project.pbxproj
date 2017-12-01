@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		58305A341FA699D4000FBAE8 /* FocusFinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5891D9A61FA3E4A000CA2AE9 /* FocusFinder.cpp */; };
+		588CF56E1FD0C01A000F65DC /* fiducialfinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 588CF56C1FD0C019000F65DC /* fiducialfinder.cpp */; };
 		5891D94B1FA3DA1F00CA2AE9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5891D94A1FA3DA1F00CA2AE9 /* main.cpp */; };
 		5891D97C1FA3E3AC00CA2AE9 /* libopencv_aruco.3.3.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5891D9521FA3E3AC00CA2AE9 /* libopencv_aruco.3.3.1.dylib */; };
 		5891D97D1FA3E3AC00CA2AE9 /* libopencv_bgsegm.3.3.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5891D9531FA3E3AC00CA2AE9 /* libopencv_bgsegm.3.3.1.dylib */; };
@@ -76,6 +77,8 @@
 
 /* Begin PBXFileReference section */
 		58305A2C1FA69838000FBAE8 /* basicviewer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = basicviewer; sourceTree = BUILT_PRODUCTS_DIR; };
+		588CF56C1FD0C019000F65DC /* fiducialfinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fiducialfinder.cpp; sourceTree = "<group>"; };
+		588CF56D1FD0C01A000F65DC /* fiducialfinder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = fiducialfinder.hpp; sourceTree = "<group>"; };
 		5891D9471FA3DA1F00CA2AE9 /* fiducialfinding */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fiducialfinding; sourceTree = BUILT_PRODUCTS_DIR; };
 		5891D94A1FA3DA1F00CA2AE9 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		5891D9521FA3E3AC00CA2AE9 /* libopencv_aruco.3.3.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_aruco.3.3.1.dylib; path = opencvlibs/libopencv_aruco.3.3.1.dylib; sourceTree = "<group>"; };
@@ -188,6 +191,8 @@
 			isa = PBXGroup;
 			children = (
 				5891D9A61FA3E4A000CA2AE9 /* FocusFinder.cpp */,
+				588CF56C1FD0C019000F65DC /* fiducialfinder.cpp */,
+				588CF56D1FD0C01A000F65DC /* fiducialfinder.hpp */,
 				5891D9A71FA3E4A000CA2AE9 /* FocusFinder.hpp */,
 				5891D9491FA3DA1F00CA2AE9 /* fiducialfinding */,
 				5891D9481FA3DA1F00CA2AE9 /* Products */,
@@ -349,6 +354,7 @@
 			files = (
 				58305A341FA699D4000FBAE8 /* FocusFinder.cpp in Sources */,
 				5891D94B1FA3DA1F00CA2AE9 /* main.cpp in Sources */,
+				588CF56E1FD0C01A000F65DC /* fiducialfinder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
