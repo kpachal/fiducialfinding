@@ -22,7 +22,7 @@ public:
 	FiducialFinder();
 	~FiducialFinder();
 
-    bool FindFiducial_ARUCO(cv::Mat image, bool fiducialIsFilled = false);
+    bool FindFiducial_ARUCO(cv::Mat image, bool fiducialIsFilled = false, std::string name = "");
 
     // bool FindFiducial_SURF(cv::Mat image);
 
@@ -40,8 +40,12 @@ protected:
     cv::Ptr<cv::aruco::Dictionary> GetArucoF(bool filled = false);
 
     void Show(cv::Mat img);
+    void DrawLine (cv::Mat img, cv::Point2f start, cv::Point2f end);
+    void DrawCircle (cv::Mat img, cv::Point2f point, int radius );
   
     cv::Mat m_templateImage;
+  
+    double m_pixToMicron;
 
 };
 

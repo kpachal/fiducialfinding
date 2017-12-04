@@ -35,6 +35,9 @@ int main(int, char**)
 
       // No img. no 6
       if (i==6) continue;
+      
+      // Just for speed...
+      if (i < 5 || i > 8 ) continue;
 
       std::stringstream ss;
       ss << std::setfill ('0') << std::setw (4);
@@ -54,7 +57,8 @@ int main(int, char**)
       resize(searchImage, searchImage, cv::Size(), 1.0/2.5, 1.0/2.5);
       resize(searchImage, searchImage, cv::Size(), 0.5, 0.5);
 
-      bool gotAruco = myFinder.FindFiducial_ARUCO(searchImage,true);
+      std::string outName = "/Users/kpachal/Documents/Slides/ITk/VancouverMeetings/FiducialFinding_2017.12.05/my_images/CarletonPic_"+numstring+".png";
+      bool gotAruco = myFinder.FindFiducial_ARUCO(searchImage,true,outName);
   
       bool gotContours = myFinder.FindFiducial_Contours(searchImage);
   
