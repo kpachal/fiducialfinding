@@ -11,7 +11,8 @@
 #include <functional>
 #include <math.h>
 
-FiducialFinder::FiducialFinder() {
+FiducialFinder::FiducialFinder() :
+m_rng(12345) {
 
   cv::namedWindow("display",CV_WINDOW_NORMAL);
   m_pixToMicron = 3.0;
@@ -110,8 +111,75 @@ bool FiducialFinder::FindFiducial_ARUCO(cv::Mat image, bool fiducialIsFilled, st
 
 bool FiducialFinder::FindFiducial_Contours(cv::Mat image) {
 
+  // Check that we have something to search in
+  Show(image);
+  
+  int kernel_size = 3;
+  cv::Mat temp;
+  double otsu_thresh_val = cv::threshold(image, temp, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+  int lowThreshold = 0.75*otsu_thresh_val;
+  int highThreshold = otsu_thresh_val;
+  // Or roughly 100, 300?
+  
+  cv::Mat smoothed = Filter(image);
+  
+  // Apply Canny edge detection
+  cv::Mat edges;
+  Canny(smoothed, edges, lowThreshold, highThreshold, kernel_size);
+  
+  // Now pick out contours from this.
+  std::vector<std::vector<cv::Point> > contours;
+  std::vector<cv::Vec4i> hierarchy;
+  findContours(edges, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
+
+  // Draw the contours we found.
+  cv::Mat drawing = cv::Mat::zeros( edges.size(), CV_8UC3 );
+  for( int i = 0; i< contours.size(); i++ ) {
+       cv::Scalar color = cv::Scalar(m_rng.uniform(0, 255), m_rng.uniform(0,255), m_rng.uniform(0,255));
+       drawContours( drawing, contours, i, color, 2, 8, hierarchy, 0, cv::Point() );
+  }
+  Show(drawing);
+
+  // Now search through contours.
+  std::vector<std::vector<cv::Point> > contours_keep;
+  for( int i = 0; i< contours.size(); i++ ) {
+  
+    std::vector<cv::Point> cont = contours.at(i);
+    cv::Vec4i hier = hierarchy.at(i);
+  
+    // Want to filter out non-closed contours
+    //Check if there is a child contour :
+    if(hier[2]<0) continue;
+
+    // Want to filter out all the uninteresting contours
+    // that are really just noise. Can do this by size,
+    // since even the really long ones often have near
+    // zero size.
+//    double perimeter = arcLength(cont,true);
+//    double size = contourArea(cont,true);
+    
+//    if (size < image.size().width/1000.0) continue;
+
+//    if (perimeter < image.size().width/250.0 || size < image.size().width/250.0) continue;
+    
+    // Check how F-like remaining curves are
+//    approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+
+  
+    // Keep perimeters we want only
+    contours_keep.push_back(cont);
+  }
 
 
+  // Draw the contours we found.
+  drawing = cv::Mat::zeros( edges.size(), CV_8UC3 );
+  for( int i = 0; i< contours_keep.size(); i++ ) {
+       cv::Scalar color = cv::Scalar(m_rng.uniform(0, 255), m_rng.uniform(0,255), m_rng.uniform(0,255));
+       drawContours( drawing, contours_keep, i, color, 2, 8, hierarchy, 0, cv::Point() );
+  }
+
+  // What did we get?
+  Show(drawing);
 
   return false;
   
@@ -149,6 +217,7 @@ cv::Ptr<cv::aruco::Dictionary> FiducialFinder::GetArucoF(bool filled) {
 
 }
 
+
 void FiducialFinder::Show(cv::Mat img) {
 
   cv::imshow("display",img);
@@ -177,4 +246,31 @@ void FiducialFinder::DrawCircle (cv::Mat img, cv::Point2f point, int radius ) {
          point,
          radius,
          cv::Scalar( 255, 0, 0 ), thickness, lineType, 0);
+}
+
+cv::Mat FiducialFinder::Filter(cv::Mat img) {
+
+  cv::Mat out;
+//  medianBlur(img,out,3);
+  cv::bilateralFilter(img, out, 11,17,17);
+  return out;
+
+}
+
+cv::Mat FiducialFinder::Blur(cv::Mat img) {
+
+  cv::Mat out;
+  GaussianBlur(img,out,cv::Size(7,7),1.5,1.5,cv::BORDER_DEFAULT);
+
+  return out;
+
+}
+
+cv::Mat FiducialFinder::Sharpen(cv::Mat img) {
+
+  cv::Mat out;
+  
+  
+  return out;
+
 }

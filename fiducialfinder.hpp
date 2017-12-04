@@ -33,11 +33,12 @@ public:
 
 protected:
 
-    cv::Mat Filter();
-    cv::Mat Blur();
-    cv::Mat Sharpen();
+    cv::Mat Filter(cv::Mat img);
+    cv::Mat Blur(cv::Mat img);
+    cv::Mat Sharpen(cv::Mat img);
 
     cv::Ptr<cv::aruco::Dictionary> GetArucoF(bool filled = false);
+  
 
     void Show(cv::Mat img);
     void DrawLine (cv::Mat img, cv::Point2f start, cv::Point2f end);
@@ -46,6 +47,8 @@ protected:
     cv::Mat m_templateImage;
   
     double m_pixToMicron;
+  
+    cv::RNG m_rng;
 
 };
 

@@ -18,11 +18,17 @@ using namespace cv;
 int main(int, char**)
 {
 
+    bool testContours = true;
+
     // Make autofocus device
     FiducialFinder myFinder;
 
     // Name of image to use as fiducial template, if relevant
     std::string fiducialTemplate = "";
+  
+    // Need it for contour testing; take it from old photos
+    if (testContours)
+      fiducialTemplate = "/Users/kpachal/Code/ITk/FiducialTesting/simple_fiducial.jpg";
 
     cv::Mat templateImage;
     if (!fiducialTemplate.empty()) {
@@ -30,8 +36,11 @@ int main(int, char**)
       myFinder.SetFiducialTemplate(templateImage);
     }
   
+    // For aruco tests,
     // Going to look at each photo from Carleton and determine which ones contain fiducials
     for (int i=1; i< 13; i++) {
+    
+      if (testContours) continue;
 
       // No img. no 6
       if (i==6) continue;
@@ -60,11 +69,39 @@ int main(int, char**)
       std::string outName = "/Users/kpachal/Documents/Slides/ITk/VancouverMeetings/FiducialFinding_2017.12.05/my_images/CarletonPic_"+numstring+".png";
       bool gotAruco = myFinder.FindFiducial_ARUCO(searchImage,true,outName);
   
-      bool gotContours = myFinder.FindFiducial_Contours(searchImage);
+      //bool gotContours = myFinder.FindFiducial_Contours(searchImage);
   
       std::cout << "In image " << numstring << ": " << std::endl;
       std::cout << "gotAruco is " << gotAruco << std::endl;
+//      std::cout << "gotContours is " << gotContours << std::endl;
+    }
+  
+    // For contour tests,
+    // going to look at each photo of our electric mini-sensors and try to pick
+    // out the F compared to our template image.
+    for (int i=3; i<8; i++) {
+    
+      // No img. no 6
+      if (i==6) continue;
+      
+      std::stringstream ss;
+      ss << std::setfill ('0') << std::setw (2);
+      ss << i ;
+      std::string numstring = ss.str();
+
+      // Name of image in which to seek fiducial
+      std::string imgFile = "/Users/kpachal/Code/ITk/FiducialTesting/R";
+      imgFile = imgFile + numstring + ".tif";
+      std::cout << "Getting " << imgFile << std::endl;
+
+      // Load images and convert to grayscale
+      cv::Mat searchImage = imread(imgFile, 0);
+
+      bool gotContours = myFinder.FindFiducial_Contours(searchImage);
+
+      std::cout << "In image " << numstring << ": " << std::endl;
       std::cout << "gotContours is " << gotContours << std::endl;
+      
     }
 
     return 0;
