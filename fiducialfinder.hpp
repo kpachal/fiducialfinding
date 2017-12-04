@@ -26,10 +26,9 @@ public:
 
     // bool FindFiducial_SURF(cv::Mat image);
 
-    bool FindFiducial_Contours(cv::Mat image);
+    bool FindFiducial_Contours(cv::Mat image, bool doTemplate = false);
 
-    void SetFiducialTemplate(cv::Mat templateImage)
-       { m_templateImage = templateImage; };
+    void SetFiducialTemplate(cv::Mat templateImage);
 
 protected:
 
@@ -49,6 +48,9 @@ protected:
     double m_pixToMicron;
   
     cv::RNG m_rng;
+  
+    cv::Moments m_templateMu;
+    std::vector<double> m_templateHu;
 
 };
 

@@ -28,7 +28,7 @@ int main(int, char**)
   
     // Need it for contour testing; take it from old photos
     if (testContours)
-      fiducialTemplate = "/Users/kpachal/Code/ITk/FiducialTesting/simple_fiducial.jpg";
+      fiducialTemplate = "/Users/kpachal/Code/ITk/FiducialTesting/R03_fiducial.jpg";
 
     cv::Mat templateImage;
     if (!fiducialTemplate.empty()) {

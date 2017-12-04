@@ -10,6 +10,7 @@
 #include <utility>
 #include <functional>
 #include <math.h>
+#include <cmath>
 
 FiducialFinder::FiducialFinder() :
 m_rng(12345) {
@@ -22,6 +23,13 @@ m_rng(12345) {
 FiducialFinder::~FiducialFinder() {
 
   cv::destroyAllWindows();
+
+}
+
+void FiducialFinder::SetFiducialTemplate(cv::Mat templateImage) {
+
+  m_templateImage = templateImage;
+  FindFiducial_Contours(templateImage,true);
 
 }
 
@@ -109,7 +117,7 @@ bool FiducialFinder::FindFiducial_ARUCO(cv::Mat image, bool fiducialIsFilled, st
 
 }
 
-bool FiducialFinder::FindFiducial_Contours(cv::Mat image) {
+bool FiducialFinder::FindFiducial_Contours(cv::Mat image, bool doTemplate) {
 
   // Check that we have something to search in
   Show(image);
@@ -140,34 +148,72 @@ bool FiducialFinder::FindFiducial_Contours(cv::Mat image) {
   }
   Show(drawing);
 
+  // Sort contours by length so we look at the longest first.
+
   // Now search through contours.
   std::vector<std::vector<cv::Point> > contours_keep;
   for( int i = 0; i< contours.size(); i++ ) {
   
     std::vector<cv::Point> cont = contours.at(i);
     cv::Vec4i hier = hierarchy.at(i);
-  
-    // Want to filter out non-closed contours
-    //Check if there is a child contour :
-    if(hier[2]<0) continue;
+    
+    // Check how F-like curves are
+    std::vector<cv::Point> approx;
+    // 3 pixels = 1 micron
+    cv::approxPolyDP(cont, approx, 3, true);
+    cont = approx;
+    
+    // Should be 9 vertices. Give a little leeway.
+    if (!(approx.size() > 8 && approx.size() < 11)) continue;
 
     // Want to filter out all the uninteresting contours
     // that are really just noise. Can do this by size,
     // since even the really long ones often have near
     // zero size.
-//    double perimeter = arcLength(cont,true);
-//    double size = contourArea(cont,true);
-    
-//    if (size < image.size().width/1000.0) continue;
-
-//    if (perimeter < image.size().width/250.0 || size < image.size().width/250.0) continue;
-    
-    // Check how F-like remaining curves are
-//    approx = cv2.approxPolyDP(c, 0.02 * peri, True)
-
+    double perimeter = arcLength(cont,true);
+    double size = contourArea(cont,true);
+    if (size < perimeter) continue;
   
+    // Now: if this is the template,
+    // save its modes.
+    // If this is a true sample,
+    // compare modes to our template one.
+    if (doTemplate) {
+      if (contours_keep.size() > 1) {
+        std::cout << "WARNING! MORE THAN 1 CONTOUR FOUND IN TEMPLATE!" << std::endl;
+        continue;
+      }
+      
+      //Get the moments
+      m_templateMu = moments( cont, false );
+      m_templateHu.clear();
+      double thisHu[7];
+      cv::HuMoments(m_templateMu, thisHu);
+      for (int i=0; i<7; i++) {
+        m_templateHu.push_back(thisHu[i]);
+      }
+    
+    } else {
+    
+      cv::Moments thisMu = moments(cont, false);
+      double thisHu[7];
+      cv::HuMoments(thisMu,thisHu);
+      
+      // Make sure first 3 Hu moments are within 75% of the nominal values
+      bool keepContour = true;
+      for (int i=0; i<4; i++) {
+        double relDiff = std::abs(thisHu[i] - m_templateHu.at(i))/std::max(thisHu[i],m_templateHu.at(i));
+        if ( relDiff > 0.75) keepContour = false;
+      }
+//      std::cout << thisHu[0] << " " << thisHu[1] << " " << thisHu[2] << " " << std::endl;
+//      std::cout << "From template, " << m_templateHu.at(0) << " " << m_templateHu.at(1) << " " << m_templateHu.at(2) << " " << std::endl;
+//      std::cout << "This corresponds to keepContour = " << keepContour << std::endl;
+      if (!keepContour) continue;
+    }
+
     // Keep perimeters we want only
     contours_keep.push_back(cont);
+    
   }
 
 
@@ -181,7 +227,9 @@ bool FiducialFinder::FindFiducial_Contours(cv::Mat image) {
   // What did we get?
   Show(drawing);
 
-  return false;
+  // If we got more than 1 fiducial, return true.
+  bool foundFiducial = contours_keep.size() > 0 ? true : false;
+  return foundFiducial;
   
 }
 
